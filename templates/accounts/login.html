@@ -1,0 +1,5 @@
+{% extends 'core/base.html' %}{% block title %}{{ portal_title }}{% endblock %}{% block content %}
+<section class="hero-box"><a href="{% url 'accounts:login' %}">← العودة إلى بوابات الدخول</a><h1>{{ portal_title }}</h1>
+{% if portal == 'graduate' %}<p class="muted">لخريجي وخريجات الجامعة لتحديث الملف والمسار المهني والتسجيل في البرامج.</p>{% elif portal == 'employer' %}<p class="muted">لممثلي الجهات الشريكة والتوظيف للمشاركة في القياس والتعاون.</p>{% else %}<p class="muted">لموظفي العمادة وممثلي الكليات والمحللين ومديري النظام.</p>{% endif %}
+<form method="post">{% csrf_token %}{{ form.as_p }}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}<button class="button" type="submit">دخول آمن</button></form></section>
+{% endblock %}

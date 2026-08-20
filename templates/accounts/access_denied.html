@@ -1,0 +1,1 @@
+{% extends 'core/base.html' %}{% block title %}غير مصرح{% endblock %}{% block content %}<section class="hero-box empty"><h1>هذه الخدمة غير متاحة لحسابك</h1><p>أنت مسجل الدخول من فئة مختلفة عن الفئة المخصصة لهذه الصفحة.</p><a class="button" href="{% url 'accounts:dashboard' %}">العودة إلى لوحتي</a></section>{% endblock %}

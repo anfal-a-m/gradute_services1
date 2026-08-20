@@ -1,0 +1,1 @@
+{% extends 'core/base.html' %}{% block title %}التقارير{% endblock %}{% block content %}<section class="hero-box"><h1>مؤشرات البوابة</h1></section><div class="grid" style="margin-top:20px">{% for label,value in metrics %}<article class="card"><h2>{{ value }}</h2><p>{{ label }}</p></article>{% endfor %}</div>{% endblock %}

@@ -1,0 +1,300 @@
+<style>
+    .portal-footer {
+        position: relative;
+        overflow: hidden;
+        color: #e9f6f4;
+        background: #234c49;
+    }
+
+    .portal-footer::before {
+        content: "";
+        position: absolute;
+        top: -110px;
+        left: -90px;
+        width: 280px;
+        height: 280px;
+        border: 45px solid rgba(106, 199, 189, 0.08);
+        border-radius: 50%;
+    }
+
+    .footer-main {
+        position: relative;
+        width: min(1180px, calc(100% - 32px));
+        margin: auto;
+        padding: 66px 0 45px;
+        display: grid;
+        grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr;
+        gap: 45px;
+    }
+
+    .footer-brand {
+        max-width: 360px;
+    }
+
+    .footer-brand__title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .footer-brand__icon {
+        width: 43px;
+        height: 43px;
+        display: grid;
+        place-items: center;
+        color: #234c49;
+        background: var(--psau-secondary);
+        border-radius: 12px;
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    .footer-brand p {
+        margin: 0;
+        color: #cce2df;
+        font-size: 14px;
+        line-height: 2;
+    }
+
+    .footer-column h2 {
+        position: relative;
+        margin: 0 0 20px;
+        padding-bottom: 12px;
+        color: #ffffff;
+        font-size: 16px;
+    }
+
+    .footer-column h2::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 34px;
+        height: 3px;
+        background: var(--psau-secondary);
+        border-radius: 5px;
+    }
+
+    .footer-column ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .footer-column li + li {
+        margin-top: 10px;
+    }
+
+    .footer-column a {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #cce2df;
+        font-size: 14px;
+        line-height: 1.7;
+        text-decoration: none;
+        transition:
+            color 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .footer-column a::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--psau-secondary);
+        border-radius: 50%;
+    }
+
+    .footer-column a:hover,
+    .footer-column a:focus-visible {
+        color: #ffffff;
+        transform: translateX(-3px);
+        outline: none;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+        color: #cce2df;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .contact-item svg {
+        width: 18px;
+        height: 18px;
+        margin-top: 3px;
+        color: var(--psau-secondary);
+        flex: 0 0 auto;
+    }
+
+    .footer-bottom {
+        position: relative;
+        border-top: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .footer-bottom__container {
+        width: min(1180px, calc(100% - 32px));
+        min-height: 72px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        color: #b9d2cf;
+        font-size: 13px;
+    }
+
+    .footer-bottom__links {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .footer-bottom__links a {
+        color: #b9d2cf;
+        text-decoration: none;
+    }
+
+    .footer-bottom__links a:hover {
+        color: #ffffff;
+    }
+
+    @media (max-width: 900px) {
+        .footer-main {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 580px) {
+        .footer-main {
+            grid-template-columns: 1fr;
+            gap: 34px;
+            padding-top: 50px;
+        }
+
+        .footer-bottom__container {
+            padding: 20px 0;
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<footer class="portal-footer">
+    <div class="footer-main">
+        <section class="footer-brand">
+            <div class="footer-brand__title">
+                <span class="footer-brand__icon">خ</span>
+                <span>بوابة خدمات الخريجين</span>
+            </div>
+
+            <p>
+                منصة رقمية لتعزيز التواصل المستمر بين الجامعة
+                وخريجيها، ودعم مسارهم المهني والتطويري، وقياس
+                مواءمة المخرجات الأكاديمية مع احتياجات سوق العمل.
+            </p>
+        </section>
+
+        <section class="footer-column">
+            <h2>روابط مهمة</h2>
+
+            <ul>
+                <li><a href="{% url 'core:home' %}">الرئيسية</a></li>
+                <li><a href="{% url 'graduates:profile' %}">ملف الخريج</a></li>
+                <li><a href="{% url 'programs:list' %}">البرامج التطويرية</a></li>
+                <li><a href="{% url 'surveys:list' %}">الاستبانات</a></li>
+            </ul>
+        </section>
+
+        <section class="footer-column">
+            <h2>الدعم والمساعدة</h2>
+
+            <ul>
+                <li><a href="{% url 'core:faq' %}">الأسئلة الشائعة</a></li>
+                <li><a href="{% url 'core:static_page' 'guide' %}">دليل استخدام البوابة</a></li>
+                <li><a href="{% url 'core:static_page' 'privacy' %}">سياسة الخصوصية</a></li>
+                <li><a href="{% url 'core:static_page' 'terms' %}">شروط الاستخدام</a></li>
+            </ul>
+        </section>
+
+        <section class="footer-column">
+            <h2>تواصل معنا</h2>
+
+            <div class="contact-item">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path d="M4 4h16v16H4z"/>
+                    <path d="m4 6 8 6 8-6"/>
+                </svg>
+                <span>بريد الدعم يحدد من إعدادات البوابة</span>
+            </div>
+
+            <div class="contact-item">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2"/>
+                    <path d="M3.18 2h3a2 2 0 0 1 2 1.72"/>
+                    <path d="M8.5 10.5a15 15 0 0 0 5 5"/>
+                </svg>
+                <span>هاتف الدعم يحدد من إعدادات البوابة</span>
+            </div>
+
+            <div class="contact-item">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path d="M12 21s7-5.3 7-12a7 7 0 1 0-14 0c0 6.7 7 12 7 12Z"/>
+                    <circle cx="12" cy="9" r="2"/>
+                </svg>
+                <span>عمادة الخدمات التعليمية</span>
+            </div>
+        </section>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-bottom__container">
+            <p>
+                جميع الحقوق محفوظة ©
+                <span id="currentYear">2026</span>
+                لبوابة خدمات الخريجين
+            </p>
+
+            <div class="footer-bottom__links">
+                <a href="{% url 'core:static_page' 'accessibility' %}">إمكانية الوصول</a>
+                <a href="{% url 'core:static_page' 'sitemap' %}">خريطة الموقع</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const yearElement = document.getElementById('currentYear');
+
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
+    });
+</script>

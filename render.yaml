@@ -1,0 +1,23 @@
+databases:
+  - name: graduate-services-db
+    databaseName: graduate_services
+    user: graduate_services
+    plan: free
+
+services:
+  - type: web
+    name: graduate-services-portal
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn gradute_services1.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: graduate-services-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"

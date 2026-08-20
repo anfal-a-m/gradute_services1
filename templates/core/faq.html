@@ -1,0 +1,1 @@
+{% extends 'core/base.html' %}{% block title %}الأسئلة الشائعة{% endblock %}{% block content %}<section class="hero-box"><h1>الأسئلة الشائعة</h1>{% for faq in faqs %}<details><summary><strong>{{ faq.question }}</strong></summary><p>{{ faq.answer }}</p></details>{% empty %}<p class="empty">سيتم نشر الأسئلة الشائعة قريبًا.</p>{% endfor %}</section>{% endblock %}

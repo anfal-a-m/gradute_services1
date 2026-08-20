@@ -1,0 +1,3 @@
+{% extends 'core/base.html' %}{% block title %}ملف الخريج{% endblock %}{% block content %}
+<section class="hero-box"><h1>ملف الخريج</h1><p>نسبة اكتمال الملف: <strong>{{ graduate.completion_percentage }}%</strong></p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">حفظ البيانات</button></form></section>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends 'core/base.html' %}{% block title %}لوحة تحليل البيانات{% endblock %}{% block content %}
+<section class="hero-box"><h1>لوحة تحليل بيانات الخريجين</h1><p class="muted">مؤشرات مجمعة للقراءة والتحليل دون صلاحيات تعديل البيانات التشغيلية.</p></section>
+<div class="grid" style="margin-top:20px">{% for label,value in metrics %}<article class="card"><h2>{{ value }}</h2><p>{{ label }}</p></article>{% endfor %}</div>
+<div class="grid" style="margin-top:20px"><section class="card"><h2>توزيع الحالة المهنية</h2>{% for label,value in career_statuses %}<p><strong>{{ label }}</strong><span style="float:left">{{ value }}</span></p>{% empty %}<p class="empty">لا توجد حالات مهنية مسجلة.</p>{% endfor %}</section><section class="card"><h2>حالات التسجيل في البرامج</h2>{% for label,value in registration_statuses %}<p><strong>{{ label }}</strong><span style="float:left">{{ value }}</span></p>{% empty %}<p class="empty">لا توجد تسجيلات في البرامج.</p>{% endfor %}</section></div>
+<section class="hero-box" style="margin-top:20px"><h2>الوصول إلى التقارير</h2><p>يمكنك استعراض التقارير المحفوظة والمؤشرات وسجلات التدقيق من الصفحات المخصصة للقراءة.</p><a class="button" href="{% url 'reports:dashboard' %}">فتح مؤشرات التقارير</a></section>
+{% endblock %}

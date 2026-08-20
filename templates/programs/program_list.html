@@ -1,0 +1,3 @@
+{% extends 'core/base.html' %}{% block title %}البرامج التطويرية{% endblock %}{% block content %}
+<section class="hero-box"><h1>البرامج التطويرية</h1><p class="muted">دورات وورش تدعم تقدم الخريجين المهني.</p></section><div class="grid" style="margin-top:20px">{% for program in programs %}<article class="card"><h2>{{ program.title }}</h2><p>{{ program.description|truncatewords:24 }}</p><p class="muted">{{ program.get_delivery_mode_display }} — {{ program.starts_at|date:'d M Y' }}</p><a class="button" href="{% url 'programs:detail' program.pk %}">التفاصيل</a></article>{% empty %}<div class="card empty">لا توجد برامج متاحة حاليًا. ستظهر البرامج هنا فور نشرها.</div>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+{% extends 'core/base.html' %}{% block title %}سجل العمليات{% endblock %}{% block content %}<section class="hero-box"><h1>سجل العمليات</h1>{% for item in items %}<p>{{ item }}</p>{% empty %}<p class="empty">لا توجد عمليات مسجلة.</p>{% endfor %}</section>{% endblock %}

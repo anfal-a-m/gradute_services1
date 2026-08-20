@@ -1,0 +1,5 @@
+{% extends 'core/base.html' %}{% block title %}لوحة مدير النظام{% endblock %}{% block content %}
+<section class="hero-box"><h1>لوحة مدير النظام</h1><p class="muted">إشراف مركزي على المستخدمين والمحتوى والخدمات، مع وصول كامل إلى الإدارة المتقدمة.</p><a class="button" href="{% url 'admin:index' %}">فتح الإدارة المتقدمة</a></section>
+<div class="grid" style="margin-top:20px">{% for label,value in metrics %}<article class="card"><h2>{{ value }}</h2><p>{{ label }}</p></article>{% endfor %}</div>
+<div class="grid" style="margin-top:20px"><section class="card"><h2>توزيع المستخدمين حسب الدور</h2>{% for label,value in role_counts %}<p><strong>{{ label }}</strong><span style="float:left">{{ value }}</span></p>{% endfor %}</section><section class="card"><h2>اختصارات الإدارة</h2><p><a href="{% url 'admin:accounts_user_changelist' %}">إدارة المستخدمين والصلاحيات</a></p><p><a href="{% url 'admin:surveys_survey_changelist' %}">إدارة الاستبانات</a></p><p><a href="{% url 'admin:programs_developmentprogram_changelist' %}">إدارة البرامج</a></p><p><a href="{% url 'admin:core_sitesetting_changelist' %}">إعدادات البوابة</a></p></section></div>
+{% endblock %}

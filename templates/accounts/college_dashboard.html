@@ -1,0 +1,8 @@
+{% extends 'core/base.html' %}{% block title %}لوحة ممثل الكلية{% endblock %}{% block content %}
+{% if college %}
+<section class="hero-box"><h1>لوحة ممثل {{ college.name_ar }}</h1><p class="muted">نظرة مختصرة على البرامج والخريجين والمؤشرات التابعة للكلية فقط.</p></section>
+<div class="grid" style="margin-top:20px"><article class="card"><h2>{{ departments|length }}</h2><p>الأقسام الأكاديمية</p></article><article class="card"><h2>{{ academic_program_count }}</h2><p>البرامج الأكاديمية</p></article><article class="card"><h2>{{ graduate_count }}</h2><p>سجلات الخريجين</p></article><article class="card"><h2>{{ employed_count }}</h2><p>الخريجون الموظفون</p></article></div>
+<section class="hero-box" style="margin-top:20px"><h2>الأقسام والبرامج</h2><div class="grid">{% for department in departments %}<article class="card"><h3>{{ department.name_ar }}</h3><p>{% for program in department.academic_programs.all %}{{ program.name_ar }}{% if not forloop.last %}<br>{% endif %}{% empty %}لا توجد برامج نشطة{% endfor %}</p></article>{% endfor %}</div></section>
+<section class="hero-box" style="margin-top:20px"><h2>أحدث سجلات الخريجين</h2>{% for record in recent_graduates %}<article class="card" style="margin-top:12px"><strong>{{ record.full_name_ar }}</strong><p class="muted">{{ record.program.name_ar }} · {{ record.graduation_date|default:'تاريخ غير محدد' }}</p></article>{% empty %}<p class="empty">لا توجد سجلات خريجين للكلية حاليًا.</p>{% endfor %}</section>
+{% else %}<section class="hero-box empty"><h1>لم يتم ربط الحساب بكلية</h1><p>يرجى من مدير النظام تحديد الكلية الممثلة لهذا الحساب.</p></section>{% endif %}
+{% endblock %}

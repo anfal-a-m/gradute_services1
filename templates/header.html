@@ -1,0 +1,489 @@
+<style>
+    :root {
+        --psau-primary: #3c7974;
+        --psau-primary-dark: #285b57;
+        --psau-secondary: #6ac7bd;
+        --psau-light: #bbe3e7;
+        --psau-soft: #f1f9f7;
+        --psau-gray: #898b8e;
+        --psau-border: #dce7e5;
+        --psau-text: #16302e;
+        --psau-white: #ffffff;
+    }
+
+    .skip-link {
+        position: fixed;
+        top: -100px;
+        right: 20px;
+        z-index: 9999;
+        padding: 12px 18px;
+        color: var(--psau-white);
+        background: var(--psau-primary-dark);
+        border-radius: 8px;
+        text-decoration: none;
+        transition: top 0.2s ease;
+    }
+
+    .skip-link:focus {
+        top: 15px;
+    }
+
+    .government-bar {
+        background: #234c49;
+        color: #ffffff;
+        font-size: 13px;
+    }
+
+    .government-bar__container {
+        width: min(1180px, calc(100% - 32px));
+        min-height: 38px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .government-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .government-dot {
+        width: 9px;
+        height: 9px;
+        background: var(--psau-secondary);
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(106, 199, 189, 0.16);
+    }
+
+    .government-links {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .government-links a {
+        color: #ffffff;
+        text-decoration: none;
+        opacity: 0.9;
+    }
+
+    .government-links a:hover,
+    .government-links a:focus-visible {
+        opacity: 1;
+        text-decoration: underline;
+    }
+
+    .main-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid var(--psau-border);
+        backdrop-filter: blur(14px);
+        transition: box-shadow 0.25s ease;
+    }
+
+    .main-header.is-scrolled {
+        box-shadow: 0 10px 30px rgba(29, 73, 69, 0.1);
+    }
+
+    .main-header__container {
+        width: min(1180px, calc(100% - 32px));
+        min-height: 82px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .portal-brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        color: var(--psau-text);
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .brand-mark {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px;
+        background: var(--psau-primary);
+        border-radius: 14px 14px 6px 14px;
+        box-shadow: 0 9px 22px rgba(60, 121, 116, 0.2);
+    }
+
+    .brand-mark span {
+        width: 7px;
+        display: block;
+        background: #ffffff;
+        border-radius: 5px 5px 2px 2px;
+    }
+
+    .brand-mark span:nth-child(1) {
+        height: 18px;
+    }
+
+    .brand-mark span:nth-child(2) {
+        height: 29px;
+        background: var(--psau-secondary);
+    }
+
+    .brand-mark span:nth-child(3) {
+        height: 23px;
+    }
+
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.35;
+    }
+
+    .brand-text strong {
+        font-size: 17px;
+        color: var(--psau-primary-dark);
+    }
+
+    .brand-text small {
+        color: var(--psau-gray);
+        font-size: 11px;
+    }
+
+    .main-navigation {
+        margin-inline-start: auto;
+    }
+
+    .main-navigation ul {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .main-navigation a {
+        display: block;
+        padding: 11px 13px;
+        color: #3f5452;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition:
+            color 0.2s ease,
+            background 0.2s ease;
+    }
+
+    .main-navigation a:hover,
+    .main-navigation a:focus-visible {
+        color: var(--psau-primary-dark);
+        background: var(--psau-soft);
+        outline: none;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .language-button,
+    .login-button,
+    .mobile-menu-button {
+        border: 0;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .language-button {
+        padding: 10px;
+        color: var(--psau-primary);
+        background: transparent;
+        border-radius: 9px;
+        font-weight: 800;
+    }
+
+    .language-button:hover {
+        background: var(--psau-soft);
+    }
+
+    .login-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 44px;
+        padding: 0 18px;
+        color: #ffffff;
+        background: var(--psau-primary);
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(60, 121, 116, 0.17);
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease;
+    }
+
+    .login-button:hover,
+    .login-button:focus-visible {
+        color: #ffffff;
+        background: var(--psau-primary-dark);
+        transform: translateY(-1px);
+        outline: none;
+    }
+
+    .login-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mobile-menu-button {
+        width: 44px;
+        height: 44px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: var(--psau-primary);
+        background: var(--psau-soft);
+        border-radius: 10px;
+    }
+
+    .mobile-menu-button svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    @media (max-width: 1020px) {
+        .main-header__container {
+            min-height: 74px;
+        }
+
+        .mobile-menu-button {
+            display: inline-flex;
+        }
+
+        .main-navigation {
+            position: absolute;
+            top: 100%;
+            right: 16px;
+            left: 16px;
+            display: none;
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid var(--psau-border);
+            border-radius: 14px;
+            box-shadow: 0 18px 45px rgba(25, 65, 62, 0.14);
+        }
+
+        .main-navigation.is-open {
+            display: block;
+        }
+
+        .main-navigation ul {
+            display: grid;
+            gap: 3px;
+        }
+
+        .main-navigation a {
+            padding: 13px;
+        }
+
+        .header-actions {
+            margin-inline-start: auto;
+        }
+    }
+
+    @media (max-width: 680px) {
+        .government-bar__container {
+            justify-content: center;
+            min-height: 34px;
+        }
+
+        .government-links,
+        .brand-text small,
+        .language-button {
+            display: none;
+        }
+
+        .main-header__container {
+            width: min(100% - 22px, 1180px);
+            gap: 10px;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+        }
+
+        .brand-text strong {
+            font-size: 14px;
+        }
+
+        .login-button {
+            min-height: 41px;
+            padding: 0 12px;
+        }
+    }
+</style>
+
+<a href="#main-content" class="skip-link">الانتقال إلى المحتوى</a>
+
+<div class="government-bar">
+    <div class="government-bar__container">
+        <div class="government-badge">
+            <span class="government-dot"></span>
+            <span>بوابة إلكترونية جامعية آمنة</span>
+        </div>
+
+        <div class="government-links">
+            <a href="{% url 'core:faq' %}">الأسئلة الشائعة</a>
+            <a href="{% url 'core:contact' %}">تواصل معنا</a>
+            <a href="{% url 'core:static_page' 'privacy' %}">سياسة الخصوصية</a>
+        </div>
+    </div>
+</div>
+
+<header class="main-header" id="mainHeader">
+    <div class="main-header__container">
+        <a class="portal-brand" href="{% url 'core:home' %}" aria-label="الصفحة الرئيسية">
+            <span class="brand-mark" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+
+            <span class="brand-text">
+                <strong>بوابة خدمات الخريجين</strong>
+                <small>عمادة الخدمات التعليمية</small>
+            </span>
+        </a>
+
+        <nav
+            class="main-navigation"
+            id="mainNavigation"
+            aria-label="التنقل الرئيسي"
+        >
+            <ul>
+                <li><a href="{% url 'core:home' %}">الرئيسية</a></li>
+                {% if user.role != 'employer' %}<li><a href="{% url 'programs:list' %}">البرامج التطويرية</a></li>{% endif %}
+                <li><a href="{% url 'employers:list' %}">جهات التوظيف</a></li>
+                {% if user.is_authenticated and user.role == 'graduate' %}
+                    <li><a href="{% url 'graduates:profile' %}">ملفي الشخصي</a></li>
+                    <li><a href="{% url 'employment:career' %}">المسار المهني</a></li>
+                    <li><a href="{% url 'surveys:list' %}">استباناتي</a></li>
+                {% elif user.is_authenticated and user.role == 'employer' %}
+                    <li><a href="{% url 'employers:portal' %}">مساحة جهة التوظيف</a></li>
+                    <li><a href="{% url 'employers:candidates' %}">مرشحو التوظيف</a></li>
+                    <li><a href="{% url 'surveys:list' %}">استبانات الجهة</a></li>
+                {% elif user.is_authenticated and user.role == 'college_rep' %}
+                    <li><a href="{% url 'accounts:college_dashboard' %}">لوحة الكلية</a></li>
+                {% elif user.is_authenticated and user.role == 'analyst' %}
+                    <li><a href="{% url 'accounts:analytics_dashboard' %}">لوحة التحليل</a></li>
+                {% elif user.is_authenticated and user.role == 'system_admin' %}
+                    <li><a href="{% url 'accounts:system_dashboard' %}">لوحة النظام</a></li>
+                {% elif user.is_authenticated and user.role == 'staff' %}
+                    <li><a href="{% url 'accounts:staff_dashboard' %}">لوحة التشغيل</a></li>
+                {% elif user.is_staff %}
+                    <li><a href="{% url 'admin:index' %}">لوحة الإدارة</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <a class="login-button" href="{% if user.is_authenticated %}{% url 'accounts:dashboard' %}{% else %}{% url 'accounts:login' %}{% endif %}">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <path d="M10 17l5-5-5-5"/>
+                    <path d="M15 12H3"/>
+                </svg>
+                <span>{% if user.is_authenticated %}لوحتي{% else %}بوابات الدخول{% endif %}</span>
+            </a>
+
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="فتح القائمة"
+                aria-expanded="false"
+                aria-controls="mainNavigation"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <path d="M4 7h16"/>
+                    <path d="M4 12h16"/>
+                    <path d="M4 17h16"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const header = document.getElementById('mainHeader');
+        const menuButton = document.getElementById('mobileMenuButton');
+        const navigation = document.getElementById('mainNavigation');
+
+        function updateHeaderShadow() {
+            header.classList.toggle('is-scrolled', window.scrollY > 8);
+        }
+
+        updateHeaderShadow();
+        window.addEventListener('scroll', updateHeaderShadow, {
+            passive: true
+        });
+
+        menuButton.addEventListener('click', function () {
+            const isOpen = navigation.classList.toggle('is-open');
+
+            menuButton.setAttribute(
+                'aria-expanded',
+                String(isOpen)
+            );
+
+            menuButton.setAttribute(
+                'aria-label',
+                isOpen ? 'إغلاق القائمة' : 'فتح القائمة'
+            );
+        });
+
+        navigation.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                navigation.classList.remove('is-open');
+                menuButton.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (
+                !navigation.contains(event.target)
+                && !menuButton.contains(event.target)
+            ) {
+                navigation.classList.remove('is-open');
+                menuButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+</script>
