@@ -6,7 +6,7 @@ databases:
 
 services:
   - type: web
-    name: graduate-services-portal
+    name: gradute-services1
     runtime: python
     plan: free
     buildCommand: bash build.sh
