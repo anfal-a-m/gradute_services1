@@ -168,7 +168,7 @@ class EmployerPortalTests(TestCase):
 class AccountGovernanceTests(TestCase):
     def test_registration_marks_employer_only_fields_for_dynamic_display(self):
         response = self.client.get(reverse('core:create_account'))
-        self.assertContains(response, '<p data-employer-field>', count=4, html=True)
+        self.assertEqual(response.content.count(b'<p data-employer-field>'), 4)
         self.assertContains(
             response,
             '[data-employer-field][hidden] { display: none !important; }',
