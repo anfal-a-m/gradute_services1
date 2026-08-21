@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block title %}إنشاء حساب | بوابة خدمات الخريجين{% endblock %}
+
+{% block content %}
+<section class="hero-box" aria-labelledby="create-account-title">
+    <h1 id="create-account-title">إنشاء حساب جديد</h1>
+    <p class="muted">أدخل بياناتك الأساسية لإنشاء حساب في بوابة خدمات الخريجين.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="errorlist" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <p>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <span class="errorlist" role="alert">{{ field.errors }}</span>
+                {% endif %}
+            </p>
+        {% endfor %}
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <button class="button" type="submit">إنشاء الحساب</button>
+        <a class="button secondary" href="{% url 'accounts:login' %}">لدي حساب بالفعل</a>
+    </form>
+</section>
+{% endblock %}

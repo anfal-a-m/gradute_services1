@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تسجيل الدخول | بوابة خدمات الخريجين{% endblock %}
+
+{% block content %}
+<section class="hero-box" aria-labelledby="login-title">
+    <h1 id="login-title">تسجيل الدخول</h1>
+    <p class="muted">استخدم اسم المستخدم وكلمة المرور للوصول إلى الخدمات المصرح بها لحسابك.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="errorlist" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <p>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <span class="errorlist" role="alert">{{ field.errors }}</span>
+                {% endif %}
+            </p>
+        {% endfor %}
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <button class="button" type="submit">دخول آمن</button>
+        <a class="button secondary" href="{% url 'core:home' %}">العودة للرئيسية</a>
+    </form>
+</section>
+{% endblock %}
