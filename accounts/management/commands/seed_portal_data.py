@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -46,8 +47,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         owner = User.objects.filter(username='staff.demo').first()
         if owner is None:
-            self.stdout.write('Demo users are unavailable; portal data was not seeded.')
-            return
+            owner, created = User.objects.get_or_create(
+                username='portal.content',
+                defaults={
+                    'first_name': 'إدارة',
+                    'last_name': 'البوابة',
+                    'role': User.Role.STAFF,
+                    'is_active': False,
+                },
+            )
+            if created:
+                owner.password = make_password(None)
+                owner.save(update_fields=['password'])
 
         academic_programs = []
         for college_code, college_ar, college_en, departments in COLLEGES:
@@ -81,8 +92,17 @@ class Command(BaseCommand):
             academic_year='1447', semester='الفصل الثاني',
             defaults={'graduation_date': date(2026, 6, 15)},
         )
+        graduate_usernames = ['graduate.demo'] + [f'student{i:02d}.demo' for i in range(1, 9)]
+        for username in graduate_usernames:
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={'role': User.Role.GRADUATE, 'is_active': False},
+            )
+            if created:
+                user.password = make_password(None)
+                user.save(update_fields=['password'])
         graduate_users = list(
-            User.objects.filter(username__in=['graduate.demo'] + [f'student{i:02d}.demo' for i in range(1, 9)]).order_by('username')
+            User.objects.filter(username__in=graduate_usernames).order_by('username')
         )
         skills = [
             Skill.objects.get_or_create(name_ar=name)[0]
