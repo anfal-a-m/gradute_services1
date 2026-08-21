@@ -17,7 +17,7 @@
         {% endif %}
 
         {% for field in form %}
-            <p>
+            <p{% if field.name == 'organization_name' or field.name == 'registration_number' or field.name == 'job_title' or field.name == 'phone_number' %} data-employer-field{% endif %}>
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
                 {% if field.help_text %}
@@ -29,6 +29,8 @@
             </p>
         {% endfor %}
 
+        <p class="muted">بإنشاء الحساب تقر بالموافقة على <a href="{% url 'core:static_page' 'privacy' %}" target="_blank" rel="noopener">سياسة الخصوصية</a> و<a href="{% url 'core:static_page' 'terms' %}" target="_blank" rel="noopener">شروط الاستخدام</a>. تخضع حسابات جهات التوظيف للتحقق قبل عرض بيانات المرشحين.</p>
+
         {% if next %}
             <input type="hidden" name="next" value="{{ next }}">
         {% endif %}
@@ -37,4 +39,15 @@
         <a class="button secondary" href="{% url 'core:login' %}">لدي حساب بالفعل</a>
     </form>
 </section>
+<script>
+(() => {
+    const role = document.getElementById('id_role');
+    const employerFields = document.querySelectorAll('[data-employer-field]');
+    const update = () => employerFields.forEach((field) => {
+        field.hidden = role.value !== 'employer';
+    });
+    role.addEventListener('change', update);
+    update();
+})();
+</script>
 {% endblock %}

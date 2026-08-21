@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import os
 
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
@@ -45,6 +46,12 @@ class Command(BaseCommand):
     help = 'Create idempotent demonstration content for a new production database.'
 
     def handle(self, *args, **options):
+        enabled = os.environ.get('DJANGO_SEED_DEMO_DATA', 'False').lower() == 'true'
+        if not enabled:
+            self.stdout.write(
+                'DJANGO_SEED_DEMO_DATA is not true; demonstration data was not changed.'
+            )
+            return
         owner = User.objects.filter(username='staff.demo').first()
         if owner is None:
             owner, created = User.objects.get_or_create(

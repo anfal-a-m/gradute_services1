@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+{% block title %}الجهة قيد الاعتماد{% endblock %}
+{% block content %}
+<section class="hero-box" aria-labelledby="approval-title">
+    <h1 id="approval-title">الجهة قيد الاعتماد</h1>
+    <p>حرصًا على خصوصية بيانات الخريجين، يتطلب استعراض المرشحين توثيق جهة التوظيف واعتماد ممثلها.</p>
+    <p class="muted">يمكنك حاليًا المشاركة في استبانات جهات التوظيف، وسيظهر دليل المرشحين تلقائيًا بعد الاعتماد.</p>
+    <a class="button secondary" href="{% url 'employers:portal' %}">العودة لمساحة الجهة</a>
+</section>
+{% endblock %}

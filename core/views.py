@@ -1,11 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
 from academic_data.models import AcademicProgram
-from employers.models import Employer
+from accounts.models import User, UserConsent
+from employers.models import Employer, EmployerContact
 from graduates.models import GraduateProfile
 from programs.models import DevelopmentProgram
 
@@ -28,9 +30,42 @@ def create_account(request):
 
     form = CreateAccountForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        user = form.save()
+        with transaction.atomic():
+            user = form.save()
+            ip_address = request.META.get('REMOTE_ADDR')
+            for consent_type in (
+                UserConsent.ConsentType.PRIVACY,
+                UserConsent.ConsentType.TERMS,
+            ):
+                UserConsent.objects.create(
+                    user=user,
+                    consent_type=consent_type,
+                    document_version='1.0',
+                    is_granted=True,
+                    ip_address=ip_address,
+                )
+
+            if user.role == User.Role.EMPLOYER:
+                employer = Employer.objects.create(
+                    name_ar=form.cleaned_data['organization_name'],
+                    sector_type=Employer.SectorType.PRIVATE,
+                    registration_number=form.cleaned_data['registration_number'],
+                    is_verified=False,
+                )
+                EmployerContact.objects.create(
+                    employer=employer,
+                    user=user,
+                    full_name=user.get_full_name() or user.username,
+                    job_title=form.cleaned_data['job_title'],
+                    email=user.email,
+                    phone_number=form.cleaned_data['phone_number'],
+                    is_primary=True,
+                )
         login(request, user)
-        messages.success(request, 'تم إنشاء حسابك بنجاح.')
+        if user.role == User.Role.EMPLOYER:
+            messages.success(request, 'تم استلام طلب الجهة، وسيُتاح دليل المرشحين بعد اعتمادها.')
+        else:
+            messages.success(request, 'تم إنشاء حسابك بنجاح.')
         return redirect('accounts:dashboard')
 
     return render(request, 'core-templates/create_account.html', {'form': form})
@@ -75,3 +110,19 @@ def static_page(request, slug):
         title, content = defaults.get(slug, ('الصفحة غير متاحة', 'المحتوى المطلوب غير متاح حاليًا.'))
         page = type('Page', (), {'title': title, 'content': content})()
     return render(request, 'core/static_page.html', {'page': page})
+
+
+def error_400(request, exception=None):
+    return render(request, 'errors/400.html', status=400)
+
+
+def error_403(request, exception=None):
+    return render(request, 'errors/403.html', status=403)
+
+
+def error_404(request, exception=None):
+    return render(request, 'errors/404.html', status=404)
+
+
+def error_500(request):
+    return render(request, 'errors/500.html', status=500)

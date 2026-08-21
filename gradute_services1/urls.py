@@ -10,6 +10,12 @@ from django.contrib import admin
 from django.urls import include, path
 
 
+handler400 = 'core.views.error_400'
+handler403 = 'core.views.error_403'
+handler404 = 'core.views.error_404'
+handler500 = 'core.views.error_500'
+
+
 # تخصيص عناوين لوحة إدارة Django
 admin.site.site_header = 'إدارة بوابة خدمات الخريجين'
 admin.site.site_title = 'بوابة خدمات الخريجين'

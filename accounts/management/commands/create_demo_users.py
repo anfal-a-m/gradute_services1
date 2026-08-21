@@ -40,7 +40,7 @@ class Command(BaseCommand):
             user.first_name = first_name
             user.last_name = last_name
             user.is_active = True
-            user.is_staff = role == User.Role.SYSTEM_ADMIN
+            user.is_staff = role in {User.Role.STAFF, User.Role.SYSTEM_ADMIN}
             user.is_superuser = False
             user.must_change_password = False
             user.set_password(password)

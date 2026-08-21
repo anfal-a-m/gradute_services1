@@ -4,7 +4,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import User
+from accounts.models import User, UserConsent
+from audit.models import DataAccessLog
+from employers.models import Employer, EmployerContact
 from graduates.models import GraduateProfile
 from employment.models import GraduateCareerStatus
 from surveys.models import Survey
@@ -94,6 +96,19 @@ class EmployerPortalTests(TestCase):
             password='strong-test-password',
             role=User.Role.EMPLOYER,
         )
+        self.employer = Employer.objects.create(
+            name_ar='جهة اختبار موثقة',
+            sector_type=Employer.SectorType.PRIVATE,
+            registration_number='TEST-EMPLOYER-1',
+            is_verified=True,
+        )
+        EmployerContact.objects.create(
+            employer=self.employer,
+            user=self.user,
+            full_name='ممثل جهة الاختبار',
+            email='employer-test@example.com',
+            is_primary=True,
+        )
 
     def test_employer_login_and_portal(self):
         response = self.client.post(reverse('accounts:employer_login'), {
@@ -136,6 +151,7 @@ class EmployerPortalTests(TestCase):
         response = self.client.get(reverse('employers:candidates'))
         self.assertContains(response, 'Visible')
         self.assertNotContains(response, 'Hidden')
+        self.assertEqual(DataAccessLog.objects.filter(user=self.user).count(), 1)
 
     def test_graduate_cannot_open_candidate_directory(self):
         graduate = User.objects.create_user(
@@ -147,6 +163,75 @@ class EmployerPortalTests(TestCase):
             self.client.get(reverse('employers:candidates')).status_code,
             403,
         )
+
+
+class AccountGovernanceTests(TestCase):
+    def test_employer_registration_creates_pending_verified_relationship(self):
+        response = self.client.post(reverse('core:create_account'), {
+            'role': User.Role.EMPLOYER,
+            'first_name': 'سارة',
+            'last_name': 'أحمد',
+            'email': 'new-employer@example.com',
+            'organization_name': 'شركة الاختبار',
+            'registration_number': 'REG-NEW-1',
+            'job_title': 'مسؤولة توظيف',
+            'phone_number': '+966500000001',
+            'accept_privacy': 'on',
+            'accept_terms': 'on',
+            'username': 'new-employer',
+            'password1': 'Very-strong-password-2026',
+            'password2': 'Very-strong-password-2026',
+        })
+        self.assertRedirects(
+            response,
+            reverse('accounts:dashboard'),
+            fetch_redirect_response=False,
+        )
+        user = User.objects.get(username='new-employer')
+        self.assertFalse(user.employer_contact.employer.is_verified)
+        self.assertEqual(user.consents.count(), 2)
+        self.assertEqual(
+            self.client.get(reverse('employers:candidates')).status_code,
+            403,
+        )
+
+    def test_registration_requires_governance_consents(self):
+        response = self.client.post(reverse('core:create_account'), {
+            'role': User.Role.GRADUATE,
+            'first_name': 'خريج',
+            'last_name': 'جديد',
+            'email': 'new-graduate@example.com',
+            'username': 'new-graduate',
+            'password1': 'Very-strong-password-2026',
+            'password2': 'Very-strong-password-2026',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username='new-graduate').exists())
+        self.assertContains(response, 'هذا الحقل مطلوب')
+
+    def test_pending_employer_cannot_access_candidate_data(self):
+        user = User.objects.create_user(
+            username='pending-employer',
+            password='strong-test-password',
+            role=User.Role.EMPLOYER,
+        )
+        employer = Employer.objects.create(
+            name_ar='جهة قيد المراجعة',
+            sector_type=Employer.SectorType.PRIVATE,
+            registration_number='PENDING-1',
+            is_verified=False,
+        )
+        EmployerContact.objects.create(
+            employer=employer,
+            user=user,
+            full_name='ممثل قيد المراجعة',
+            email='pending@example.com',
+        )
+        self.client.force_login(user)
+        response = self.client.get(reverse('employers:candidates'))
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, 'قيد الاعتماد', status_code=403)
+        self.assertFalse(DataAccessLog.objects.filter(user=user).exists())
 
 
 class SurveyPermissionTests(TestCase):
