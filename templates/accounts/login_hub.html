@@ -4,4 +4,10 @@
   <article class="card"><h2>بوابة الخريجين</h2><p>تحديث الملف، المسار المهني، البرامج والاستبانات.</p><a class="button" href="{% url 'accounts:graduate_login' %}">دخول الخريجين</a></article>
   <article class="card"><h2>بوابة جهات التوظيف</h2><p>التعاون، تقييم المخرجات واستبانات سوق العمل.</p><a class="button" href="{% url 'accounts:employer_login' %}">دخول الجهات</a></article>
   <article class="card"><h2>بوابة الموظفين</h2><p>الإدارة والتقارير ومتابعة بيانات البوابة.</p><a class="button" href="{% url 'accounts:staff_login' %}">دخول الموظفين</a></article>
-</div>{% endblock %}
+</div>
+<section class="card" style="margin-top:20px;text-align:center">
+  <h2>مستخدم جديد؟</h2>
+  <p>يمكن للخريجين وممثلي جهات التوظيف إنشاء حساب جديد.</p>
+  <a class="button secondary" href="{% url 'core:create_account' %}">إنشاء حساب</a>
+</section>
+{% endblock %}

@@ -1,11 +1,39 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 
 from academic_data.models import AcademicProgram
 from employers.models import Employer
 from graduates.models import GraduateProfile
 from programs.models import DevelopmentProgram
 
+from .forms import CreateAccountForm, PortalAuthenticationForm
 from .models import FAQ, StaticPage
+
+
+class PortalLoginView(LoginView):
+    template_name = 'core-templates/login.html'
+    authentication_form = PortalAuthenticationForm
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return self.get_redirect_url() or str(reverse_lazy('accounts:dashboard'))
+
+
+def create_account(request):
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    form = CreateAccountForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.success(request, 'تم إنشاء حسابك بنجاح.')
+        return redirect('accounts:dashboard')
+
+    return render(request, 'core-templates/create_account.html', {'form': form})
 
 
 def home(request):
