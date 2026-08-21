@@ -30,6 +30,11 @@ class PublicPagesTests(TestCase):
                 response = self.client.get(reverse('core:static_page', args=[slug]))
                 self.assertEqual(response.status_code, 200)
 
+    def test_login_hub_links_to_public_account_creation(self):
+        response = self.client.get(reverse('accounts:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('core:create_account'))
+
     def test_private_pages_redirect_to_login(self):
         for name in ['graduates:profile', 'employment:career', 'surveys:list']:
             with self.subTest(name=name):
