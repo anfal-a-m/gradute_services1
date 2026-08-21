@@ -12,6 +12,14 @@ DEMO_USERS = (
     ('college.demo', User.Role.COLLEGE_REPRESENTATIVE, 'ممثل', 'الكلية'),
     ('analyst.demo', User.Role.ANALYST, 'محلل', 'البيانات'),
     ('admin.demo', User.Role.SYSTEM_ADMIN, 'مدير', 'النظام'),
+    ('student01.demo', User.Role.GRADUATE, 'سارة', 'العتيبي'),
+    ('student02.demo', User.Role.GRADUATE, 'محمد', 'القحطاني'),
+    ('student03.demo', User.Role.GRADUATE, 'نورة', 'الحربي'),
+    ('student04.demo', User.Role.GRADUATE, 'عبدالله', 'الغامدي'),
+    ('student05.demo', User.Role.GRADUATE, 'ريم', 'الشهري'),
+    ('student06.demo', User.Role.GRADUATE, 'خالد', 'الزهراني'),
+    ('student07.demo', User.Role.GRADUATE, 'لمى', 'الدوسري'),
+    ('student08.demo', User.Role.GRADUATE, 'فيصل', 'المطيري'),
 )
 
 
