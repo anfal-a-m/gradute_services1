@@ -166,6 +166,15 @@ class EmployerPortalTests(TestCase):
 
 
 class AccountGovernanceTests(TestCase):
+    def test_registration_marks_employer_only_fields_for_dynamic_display(self):
+        response = self.client.get(reverse('core:create_account'))
+        self.assertContains(response, '<p data-employer-field>', count=4, html=True)
+        self.assertContains(
+            response,
+            '[data-employer-field][hidden] { display: none !important; }',
+            html=False,
+        )
+
     def test_employer_registration_creates_pending_verified_relationship(self):
         response = self.client.post(reverse('core:create_account'), {
             'role': User.Role.EMPLOYER,

@@ -3,6 +3,9 @@
 {% block title %}إنشاء حساب | بوابة خدمات الخريجين{% endblock %}
 
 {% block content %}
+<style>
+    [data-employer-field][hidden] { display: none !important; }
+</style>
 <section class="hero-box" aria-labelledby="create-account-title">
     <h1 id="create-account-title">إنشاء حساب جديد</h1>
     <p class="muted">أدخل بياناتك الأساسية لإنشاء حساب في بوابة خدمات الخريجين.</p>
@@ -44,7 +47,11 @@
     const role = document.getElementById('id_role');
     const employerFields = document.querySelectorAll('[data-employer-field]');
     const update = () => employerFields.forEach((field) => {
-        field.hidden = role.value !== 'employer';
+        const isEmployer = role.value === 'employer';
+        field.hidden = !isEmployer;
+        field.querySelectorAll('input').forEach((input) => {
+            input.disabled = !isEmployer;
+        });
     });
     role.addEventListener('change', update);
     update();
