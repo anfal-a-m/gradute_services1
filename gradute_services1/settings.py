@@ -193,6 +193,52 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# تخزين ملفات المستخدمين بصورة دائمة في الإنتاج. يدعم AWS S3 وأي مزود
+# متوافق معه مثل Cloudflare R2. عند غياب اسم الحاوية يبقى التطوير المحلي
+# على FileSystemStorage ولا تتأثر ملفات static التي يقدمها WhiteNoise.
+MEDIA_BUCKET_NAME = os.environ.get('MEDIA_BUCKET_NAME', '').strip()
+if MEDIA_BUCKET_NAME:
+    required_media_settings = {
+        'MEDIA_ACCESS_KEY_ID': os.environ.get('MEDIA_ACCESS_KEY_ID', '').strip(),
+        'MEDIA_SECRET_ACCESS_KEY': os.environ.get(
+            'MEDIA_SECRET_ACCESS_KEY',
+            '',
+        ).strip(),
+        'MEDIA_S3_ENDPOINT_URL': os.environ.get(
+            'MEDIA_S3_ENDPOINT_URL',
+            '',
+        ).strip(),
+    }
+    missing_media_settings = [
+        name for name, value in required_media_settings.items() if not value
+    ]
+    if missing_media_settings:
+        raise RuntimeError(
+            'Missing object-storage settings: '
+            + ', '.join(missing_media_settings)
+        )
+
+    STORAGES['default'] = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': MEDIA_BUCKET_NAME,
+            'access_key': required_media_settings['MEDIA_ACCESS_KEY_ID'],
+            'secret_key': required_media_settings['MEDIA_SECRET_ACCESS_KEY'],
+            'endpoint_url': required_media_settings['MEDIA_S3_ENDPOINT_URL'],
+            'region_name': os.environ.get('MEDIA_S3_REGION', 'auto'),
+            'default_acl': None,
+            'file_overwrite': False,
+            'querystring_auth': True,
+            'querystring_expire': int(
+                os.environ.get('MEDIA_SIGNED_URL_EXPIRE', '900')
+            ),
+            'location': 'media',
+            'object_parameters': {
+                'CacheControl': 'private, max-age=3600',
+            },
+        },
+    }
+
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
