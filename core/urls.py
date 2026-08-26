@@ -12,5 +12,6 @@ urlpatterns = [
     path('create-account/', views.create_account, name='create_account'),
     path('faq/', views.faq, name='faq'),
     path('contact/', views.contact, name='contact'),
+    path('assistant/chat/', views.assistant_chat, name='assistant_chat'),
     path('page/<slug:slug>/', views.static_page, name='static_page'),
 ]

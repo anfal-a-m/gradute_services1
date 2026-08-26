@@ -1,9 +1,15 @@
+import json
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.db import transaction
+from django.core.cache import cache
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 
 from academic_data.models import AcademicProgram
 from accounts.models import User, UserConsent
@@ -13,6 +19,7 @@ from programs.models import DevelopmentProgram
 
 from .forms import CreateAccountForm, PortalAuthenticationForm
 from .models import FAQ, StaticPage
+from .services import AssistantServiceError, generate_assistant_reply
 
 
 class PortalLoginView(LoginView):
@@ -110,6 +117,57 @@ def static_page(request, slug):
         title, content = defaults.get(slug, ('الصفحة غير متاحة', 'المحتوى المطلوب غير متاح حاليًا.'))
         page = type('Page', (), {'title': title, 'content': content})()
     return render(request, 'core/static_page.html', {'page': page})
+
+
+@require_POST
+def assistant_chat(request):
+    try:
+        payload = json.loads(request.body or b'{}')
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'صيغة الطلب غير صحيحة.'}, status=400)
+
+    message = payload.get('message', '')
+    if not isinstance(message, str) or not message.strip():
+        return JsonResponse({'error': 'اكتب رسالة قبل الإرسال.'}, status=400)
+    message = message.strip()
+    if len(message) > settings.OPENAI_ASSISTANT_MAX_MESSAGE_LENGTH:
+        return JsonResponse({
+            'error': f'الرسالة طويلة جدًا. الحد الأقصى {settings.OPENAI_ASSISTANT_MAX_MESSAGE_LENGTH} حرفًا.',
+        }, status=400)
+
+    if not request.session.session_key:
+        request.session.create()
+    rate_key = f'assistant-rate:{request.session.session_key}'
+    request_count = cache.get(rate_key, 0)
+    if request_count >= settings.OPENAI_ASSISTANT_REQUESTS_PER_MINUTE:
+        return JsonResponse({'error': 'أرسلت طلبات كثيرة. حاول بعد دقيقة.'}, status=429)
+    if request_count:
+        cache.incr(rate_key)
+    else:
+        cache.set(rate_key, 1, timeout=60)
+
+    history = payload.get('history', [])
+    if not isinstance(history, list):
+        history = []
+    clean_history = []
+    for item in history[-settings.OPENAI_ASSISTANT_MAX_HISTORY_ITEMS:]:
+        if not isinstance(item, dict):
+            continue
+        role = item.get('role')
+        content = item.get('content')
+        if role not in {'user', 'assistant'} or not isinstance(content, str):
+            continue
+        content = content.strip()[:settings.OPENAI_ASSISTANT_MAX_MESSAGE_LENGTH]
+        if content:
+            clean_history.append({'role': role, 'content': content})
+    if not clean_history or clean_history[-1] != {'role': 'user', 'content': message}:
+        clean_history.append({'role': 'user', 'content': message})
+
+    try:
+        reply = generate_assistant_reply(request=request, messages=clean_history)
+    except AssistantServiceError as exc:
+        return JsonResponse({'error': str(exc)}, status=503)
+    return JsonResponse({'reply': reply})
 
 
 def error_400(request, exception=None):

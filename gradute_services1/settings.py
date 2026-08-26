@@ -13,26 +13,34 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-development-key-change-before-production',
-)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '').strip()
+if not SECRET_KEY:
+    raise RuntimeError('DJANGO_SECRET_KEY must be set.')
+
+DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development').strip().lower()
+if DJANGO_ENV not in {'development', 'production'}:
+    raise RuntimeError(
+        'DJANGO_ENV must be either development or production.'
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
-
-if not DEBUG and 'DJANGO_SECRET_KEY' not in os.environ:
-    raise RuntimeError('DJANGO_SECRET_KEY must be set when DEBUG is disabled.')
+DEBUG = os.environ.get(
+    'DJANGO_DEBUG',
+    'True' if DJANGO_ENV == 'development' else 'False',
+).lower() == 'true'
+if DJANGO_ENV == 'production' and DEBUG:
+    raise RuntimeError('DJANGO_DEBUG must be False in production.')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -55,6 +63,26 @@ CSRF_TRUSTED_ORIGINS = [
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
+# OpenAI assistant. The application can start without a key so the interface
+# remains deployable while the secret is configured in each environment.
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '').strip()
+OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-5.6-luna').strip()
+OPENAI_ASSISTANT_ENABLED = os.environ.get(
+    'OPENAI_ASSISTANT_ENABLED',
+    'True',
+).lower() == 'true'
+OPENAI_ASSISTANT_MAX_MESSAGE_LENGTH = 1500
+OPENAI_ASSISTANT_MAX_HISTORY_ITEMS = 8
+OPENAI_ASSISTANT_REQUESTS_PER_MINUTE = 10
+OPENAI_REASONING_EFFORT = os.environ.get(
+    'OPENAI_REASONING_EFFORT',
+    'none',
+).strip().lower()
+OPENAI_TEXT_VERBOSITY = os.environ.get(
+    'OPENAI_TEXT_VERBOSITY',
+    'low',
+).strip().lower()
+
 
 INSTALLED_APPS = [
     # تطبيقات Django
@@ -64,6 +92,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Cloudinary is used for user-uploaded media only.
+    'cloudinary_storage',
+    'cloudinary',
 
     # تطبيقات بوابة خدمات الخريجين
     'core.apps.CoreConfig',
@@ -132,13 +164,57 @@ WSGI_APPLICATION = 'gradute_services1.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+DATABASE_COMPONENT_NAMES = (
+    'DB_HOST',
+    'DB_PORT',
+    'DB_NAME',
+    'DB_USER',
+    'DB_PASSWORD',
+)
+database_components = {
+    name: os.environ.get(name, '').strip()
+    for name in DATABASE_COMPONENT_NAMES
 }
+
+if DJANGO_ENV == 'production':
+    missing_database_components = [
+        name
+        for name, value in database_components.items()
+        if not value
+    ]
+    if missing_database_components:
+        raise RuntimeError(
+            'Missing production database settings: '
+            + ', '.join(missing_database_components)
+        )
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': database_components['DB_HOST'],
+            'PORT': database_components['DB_PORT'],
+            'NAME': database_components['DB_NAME'],
+            'USER': database_components['DB_USER'],
+            'PASSWORD': database_components['DB_PASSWORD'],
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+            'OPTIONS': {
+                'sslmode': os.environ.get('DB_SSLMODE', 'prefer'),
+            },
+        },
+    }
+else:
+    # Production database values may remain in .env safely while developing;
+    # development mode always keeps the existing local SQLite database.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 20,
+            },
+        },
+    }
 
 
 # Password validation
@@ -193,11 +269,53 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Cloudinary is enabled only after its credentials are provided. Keeping the
+# local backend as the fallback makes local development work without secrets.
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
+if DJANGO_ENV == 'production' and not CLOUDINARY_CLOUD_NAME:
+    raise RuntimeError(
+        'CLOUDINARY_CLOUD_NAME must be set in production.'
+    )
+
+if CLOUDINARY_CLOUD_NAME:
+    required_cloudinary_settings = {
+        'CLOUDINARY_API_KEY': os.environ.get(
+            'CLOUDINARY_API_KEY',
+            '',
+        ).strip(),
+        'CLOUDINARY_API_SECRET': os.environ.get(
+            'CLOUDINARY_API_SECRET',
+            '',
+        ).strip(),
+    }
+    missing_cloudinary_settings = [
+        name
+        for name, value in required_cloudinary_settings.items()
+        if not value
+    ]
+    if missing_cloudinary_settings:
+        raise RuntimeError(
+            'Missing Cloudinary settings: '
+            + ', '.join(missing_cloudinary_settings)
+        )
+
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': required_cloudinary_settings['CLOUDINARY_API_KEY'],
+        'API_SECRET': required_cloudinary_settings['CLOUDINARY_API_SECRET'],
+        'SECURE': True,
+    }
+    # Reports and program certificates are raw assets. Graduate images select
+    # their image storage explicitly at the model field level.
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.RawMediaCloudinaryStorage',
+    }
+
 # تخزين ملفات المستخدمين بصورة دائمة في الإنتاج. يدعم AWS S3 وأي مزود
 # متوافق معه مثل Cloudflare R2. عند غياب اسم الحاوية يبقى التطوير المحلي
 # على FileSystemStorage ولا تتأثر ملفات static التي يقدمها WhiteNoise.
 MEDIA_BUCKET_NAME = os.environ.get('MEDIA_BUCKET_NAME', '').strip()
-if MEDIA_BUCKET_NAME:
+if MEDIA_BUCKET_NAME and not CLOUDINARY_CLOUD_NAME:
     required_media_settings = {
         'MEDIA_ACCESS_KEY_ID': os.environ.get('MEDIA_ACCESS_KEY_ID', '').strip(),
         'MEDIA_SECRET_ACCESS_KEY': os.environ.get(

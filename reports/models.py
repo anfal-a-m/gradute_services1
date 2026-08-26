@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 from core.models import TimeStampedModel
 
@@ -133,6 +134,7 @@ class ReportExport(TimeStampedModel):
 
     file = models.FileField(
         upload_to='report_exports/%Y/%m/',
+        storage=RawMediaCloudinaryStorage(),
         blank=True,
         verbose_name='ملف التقرير',
     )

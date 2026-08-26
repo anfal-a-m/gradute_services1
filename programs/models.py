@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 from academic_data.models import AcademicProgram
 from core.models import TimeStampedModel
@@ -291,6 +292,7 @@ class ProgramCertificate(TimeStampedModel):
     )
     certificate_file = models.FileField(
         upload_to='program_certificates/%Y/%m/',
+        storage=RawMediaCloudinaryStorage(),
         blank=True,
         verbose_name='ملف الشهادة',
     )

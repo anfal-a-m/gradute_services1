@@ -1,14 +1,23 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator, RegexValidator
 from django.db import models
 
 from core.models import TimeStampedModel
+from .storage import GraduateMediaCloudinaryStorage
 
 
 phone_validator = RegexValidator(
     regex=r'^\+?[0-9]{8,15}$',
     message='أدخل رقم هاتف صحيحًا، ويمكن أن يبدأ بعلامة +.',
 )
+
+MAX_GRADUATE_IMAGE_SIZE = 10 * 1024 * 1024
+
+
+def validate_graduate_image_size(uploaded_file):
+    if uploaded_file.size > MAX_GRADUATE_IMAGE_SIZE:
+        raise ValidationError('يجب ألا يتجاوز حجم الصورة 10 ميجابايت.')
 
 
 def graduate_document_path(instance, filename):
@@ -196,14 +205,16 @@ class GraduateDocument(TimeStampedModel):
         max_length=200,
         verbose_name='عنوان الملف',
     )
-    file = models.FileField(
+    file = models.ImageField(
         upload_to=graduate_document_path,
+        storage=GraduateMediaCloudinaryStorage(),
         validators=[
             FileExtensionValidator(
-                allowed_extensions=['pdf', 'doc', 'docx'],
+                allowed_extensions=['jpg', 'jpeg', 'png', 'webp'],
             ),
+            validate_graduate_image_size,
         ],
-        verbose_name='الملف',
+        verbose_name='الصورة',
     )
     is_visible_to_employers = models.BooleanField(
         default=False,
